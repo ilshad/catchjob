@@ -9,16 +9,10 @@
 
 (enable-console-print!)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Topbar
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (defn menu-item [app focus & contents]
   (li (when (= (:focus app) focus) "active")
     (apply dom/a #js {:href "#"
-                      :onClick #(om/update! app [:focus] focus)}
+                      :onClick #(do (om/update! app [:focus] focus) false)}
            contents)))
 
 (defn topbar [app _]
@@ -27,27 +21,13 @@
       (div "row"
         (div "site-title" "catch job!")
         (ul "nav nav-pills pull-right"
-          (menu-item app :help (icon "fa-question-circle fa-lg"))
           (menu-item app :wall "catch!")
-          (menu-item app :desk "post a job")
-          (menu-item app :message false "messages"
-                     (let [c (-> app :messages count)]
-                       (when (> c 0)
-                         (span "badge" (str c))))))))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Wall
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn display-datetime [v]
-  (div "text-muted" (str v)))
+          (menu-item app :desk "post a job"))))))
 
 (defn entry-view [entry _]
   (dom/div #js {:className (str "entry " (:class entry))
                 :onClick #(js/alert (:description entry))}
-    (->> entry :datetime display-datetime)
+    (->> entry :datetime str (div "created text-muted"))
     (->> entry :description (div "description"))))
 
 (defn wall [app _]
@@ -56,34 +36,22 @@
      (apply div "content"
             (om/build-all entry-view (:entries app))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Layout
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn not-implemented [])
-
 (defn root [app _]
-  (om/component
-   (div nil
-     (om/build topbar app)
-     (case (:focus app)
-       :desk (om/build desk/desk (:desk app))
-       :wall (om/build wall app)
-       (div "container"
-         (div "content text-muted"
-           (dom/h1 nil "Not implemented yet")))))))
+  (reify
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Main
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    om/IWillMount
+    (will-mount [_]
+      (mock/init-entries! app)
+      (mock/load-entries! app))
 
-(def app (atom {:focus :wall}))
+    om/IRender
+    (render [_]
+      (div nil
+        (om/build topbar app)
+        (case (:focus app)
+          :desk (om/build desk/desk app)
+          :wall (om/build wall app))))))
 
-(om/root root app {:target (. js/document (getElementById "app"))})
-
-(mock/init-entries! app)
-(mock/load-entries! app)
+(om/root root
+         (atom {:focus :wall})
+         {:target (. js/document (getElementById "app"))})

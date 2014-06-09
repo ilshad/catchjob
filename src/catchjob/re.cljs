@@ -7,7 +7,7 @@
   (when-let [[_ _ d m y] (re-find date-regexp s)]
     {:day d :month m :year y}))
 
-(def money-regexp #"(^|\s|;)\$([0-9]+)")
+(def money-regexp #"(^|\s|;)\$\s*([0-9]+)")
 
 (defn find-money [s]
   (when-let [[_ _ v] (re-find money-regexp s)]
