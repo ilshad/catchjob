@@ -1,4 +1,4 @@
-(ns promptus.mock
+(ns catchjob.mock
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:require [cljs.core.async :refer [put! chan <! >! timeout]]))
 

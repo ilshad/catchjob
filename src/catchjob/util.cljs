@@ -1,4 +1,4 @@
-(ns promptus.util
+(ns catchjob.util
   (:require [om.dom :as dom :include-macros true]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

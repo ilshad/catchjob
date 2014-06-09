@@ -1,12 +1,12 @@
-(ns promptus.desk
+(ns catchjob.desk
   "Auto-resizable content-editable with rich input control
   and full input feedback."
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:require [cljs.core.async :refer [put! chan <! >!]]
             [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
-            [promptus.util :as util :refer [div ul li span icon]]
-            [promptus.re :as re]))
+            [catchjob.util :as util :refer [div ul li span icon]]
+            [catchjob.re :as re]))
 
 (def desk-init-state
   {:text ""

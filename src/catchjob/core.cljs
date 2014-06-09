@@ -1,11 +1,11 @@
-(ns promptus.core
+(ns catchjob.core
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:require [cljs.core.async :refer [put! chan <! >!]]
             [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
-            [promptus.util :as util :refer [div ul li span icon]]
-            [promptus.desk :as desk]
-            [promptus.mock :as mock]))
+            [catchjob.util :as util :refer [div ul li span icon]]
+            [catchjob.desk :as desk]
+            [catchjob.mock :as mock]))
 
 (enable-console-print!)
 
