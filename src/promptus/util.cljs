@@ -7,7 +7,7 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn tag [tag class-names & contents]
+(defn- tag [tag class-names & contents]
   (apply tag #js {:className class-names} contents))
 
 (def div   (partial tag dom/div))
