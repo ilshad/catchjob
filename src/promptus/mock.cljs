@@ -20,7 +20,7 @@
                                            (partial rand-nth formidos))))})
 
 (defn init-entries! [app]
-  (swap! app assoc :entries (mapv #(mock-entry) (range 5))))
+  (swap! app assoc :entries (mapv #(mock-entry) (range 10))))
 
 (defn load-entries! [app]
   (go-loop []
