@@ -1,1 +1,13 @@
+@media (min-width: 768px) {
+    .container {
+	max-width: 730px;
+    }
+}
 
+ul.nav li {
+    font-weight: bold;
+}
+
+.header {
+    margin-bottom: 30px;
+}
