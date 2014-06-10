@@ -44,7 +44,7 @@
       (om/set-state! owner k (finder text))))
   (when (om/get-state owner :done?)
     (clean-input! owner)
-    (put! (:focus state) :wall)))
+    (put! (:focus state) {:name :wall})))
 
 (defn handle-keydown [e owner state]
   (case [(.-keyCode e) (.-ctrlKey e)]
