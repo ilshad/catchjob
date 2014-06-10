@@ -31,11 +31,23 @@
     (->> entry :datetime str (div "created text-muted"))
     (->> entry :description (div "description"))))
 
-(defn wall-view [app _]
-  (om/component
-   (div "container"
-     (apply div "content"
-            (om/build-all entry-view (:entries app))))))
+(defn wall-view [entries owner]
+  (reify
+
+    om/IWillMount
+    (will-mount [_]
+      (let [ch (mock/load-entries! (om/get-state owner :add-entry))]
+        (put! ch :start)
+        (om/set-state! owner :load-entries ch)))
+
+    om/IRender
+    (render [_]
+      (div "container"
+        (apply div "content" (om/build-all entry-view entries))))
+
+    om/IWillUnmount
+    (will-unmount [_]
+      (put! (om/get-state owner :load-entries) :stop))))
 
 (defn root-view [app owner]
   (reify
@@ -55,22 +67,20 @@
         (go-loop []
           (om/update! app [:focus] (<! focus))
           (recur))
-        (mock/init-entries! add-entry)
-        ;(mock/load-entries! add-entry app)
-        ))
+        (mock/init-entries! add-entry)))
 
     om/IRenderState
     (render-state [_ {:keys [add-entry focus]}]
-      (try
-        (div nil
-          (om/build topbar-view app)
-          (case (:focus app)
-            :desk (om/build desk/desk-view
-                            (:desk app)
-                            {:state {:add-entry add-entry
-                                     :focus focus}})
-            :wall (om/build wall-view app)))
-        (catch js/Error _ (.reload (.-location js/document)))))))
+      (div nil
+        (om/build topbar-view app)
+        (case (:focus app)
+          :desk (om/build desk/desk-view
+                          (:desk app)
+                          {:state {:add-entry add-entry
+                                   :focus focus}})
+          :wall (om/build wall-view
+                          (:entries app)
+                          {:state {:add-entry add-entry}}))))))
 
 (om/root root-view
          (atom {:focus :wall})
