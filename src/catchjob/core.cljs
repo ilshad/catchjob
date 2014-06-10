@@ -4,6 +4,8 @@
             [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
             [catchjob.util :as util :refer [div ul li span icon]]
+            [catchjob.wall :as wall]
+            [catchjob.reply :as reply]
             [catchjob.desk :as desk]
             [catchjob.mock :as mock]))
 
@@ -25,37 +27,6 @@
           (menu-item app :wall "catch!")
           (menu-item app :desk "post a job"))))))
 
-(defn entry-view [entry owner]
-  (reify
-    
-    om/IRenderState
-    (render-state [_ state]
-      (dom/div #js {:className (str "entry " (:class entry))
-                    :onClick #(do (put! (:focus state)
-                                        {:name :catch :id (:id entry)})
-                                  false)}
-        (->> entry :datetime str (div "created text-muted"))
-        (->> entry :description (div "description"))))))
-
-(defn wall-view [entries owner]
-  (reify
-
-    om/IWillMount
-    (will-mount [_]
-      (let [ch (mock/load-entries! (om/get-state owner :add-entry))]
-        (put! ch :start)
-        (om/set-state! owner :load-entries ch)))
-
-    om/IRenderState
-    (render-state [_ {:keys [focus]}]
-      (div "container"
-        (apply div "content"
-               (om/build-all entry-view entries {:state {:focus focus}}))))
-
-    om/IWillUnmount
-    (will-unmount [_]
-      (put! (om/get-state owner :load-entries) :stop))))
-
 (defn root-view [app owner]
   (reify
 
@@ -73,6 +44,8 @@
             (recur)))
         (go-loop []
           (let [f (<! focus)]
+            (when (= (:name f) :reply)
+              (om/update! app [:reply :entry] (:entry f)))
             (om/update! app [:focus] (:name f)))
           (recur))
         (mock/init-entries! add-entry)))
@@ -82,12 +55,11 @@
       (div nil
         (om/build topbar-view app)
         (case (:focus app)
-          :wall (om/build wall-view
-                          (:entries app)
+          :wall (om/build wall/wall-view (:entries app)
                           {:state (select-keys state [:add-entry :focus])})
-          :desk (om/build desk/desk-view
-                          (:desk app)
-                          {:state (select-keys state [:add-entry :focus])}))))))
+          :desk (om/build desk/desk-view (:desk app)
+                          {:state (select-keys state [:add-entry :focus])})
+          :reply (om/build reply/reply-view (:reply app)))))))
 
 (om/root root-view
          (atom {:focus :wall})
