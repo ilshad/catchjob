@@ -11,3 +11,6 @@
 
 (defn icon [& class-names]
   (dom/i #js {:className (apply str (interpose " " (conj class-names "fa")))}))
+
+(defn mounted? [owner]
+  (js->clj (.isMounted owner)))

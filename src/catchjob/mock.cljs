@@ -1,5 +1,5 @@
 (ns catchjob.mock
-  (:require-macros [cljs.core.async.macros :refer [go-loop]])
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require [cljs.core.async :refer [put! chan <! >! timeout]]
             [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]))
@@ -25,12 +25,14 @@
                                            (rand-nth [3 6 9 12 15 18])
                                            (partial rand-nth formidos))))})
 
-(defn init-entries! [app]
-  (om/update! app [:entries] (mapv #(mock-entry) (range 10))))
+(defn init-entries! [add-entry]
+  (go
+   (dotimes [i 10]
+     (>! add-entry (mock-entry)))))
 
-(defn load-entries! [app]
+(defn load-entries! [add-entry app]
   (go-loop []
     (<! (timeout (rand-nth (range 500 5000 300))))
     (when (= (:focus @app) :wall)
-      (om/transact! app [:entries] #(cons (mock-entry) %)))
+      (>! add-entry (mock-entry)))
     (recur)))

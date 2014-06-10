@@ -12,10 +12,11 @@
 (defn menu-item [app focus & contents]
   (li (when (= (:focus app) focus) "active")
     (apply dom/a #js {:href "#"
-                      :onClick #(do (om/update! app [:focus] focus) false)}
+                      :onClick #(do (om/update! app [:focus] focus)
+                                    false)}
            contents)))
 
-(defn topbar [app _]
+(defn topbar-view [app _]
   (div "header"
     (div "container"
       (div "row"
@@ -30,28 +31,47 @@
     (->> entry :datetime str (div "created text-muted"))
     (->> entry :description (div "description"))))
 
-(defn wall [app _]
+(defn wall-view [app _]
   (om/component
    (div "container"
      (apply div "content"
             (om/build-all entry-view (:entries app))))))
 
-(defn root [app _]
+(defn root-view [app owner]
   (reify
+
+    om/IInitState
+    (init-state [_]
+      {:add-entry (chan)
+       :focus (chan)})
 
     om/IWillMount
     (will-mount [_]
-      (mock/init-entries! app)
-      (mock/load-entries! app))
+      (let [{:keys [add-entry focus]} (om/get-state owner)]
+        (go-loop []
+          (let [entry (<! add-entry)]
+            (om/transact! app [:entries] #(cons entry %))
+            (recur)))
+        (go-loop []
+          (om/update! app [:focus] (<! focus))
+          (recur))
+        (mock/init-entries! add-entry)
+        ;(mock/load-entries! add-entry app)
+        ))
 
-    om/IRender
-    (render [_]
-      (div nil
-        (om/build topbar app)
-        (case (:focus app)
-          :desk (om/build desk/desk app)
-          :wall (om/build wall app))))))
+    om/IRenderState
+    (render-state [_ {:keys [add-entry focus]}]
+      (try
+        (div nil
+          (om/build topbar-view app)
+          (case (:focus app)
+            :desk (om/build desk/desk-view
+                            (:desk app)
+                            {:state {:add-entry add-entry
+                                     :focus focus}})
+            :wall (om/build wall-view app)))
+        (catch js/Error _ (.reload (.-location js/document)))))))
 
-(om/root root
+(om/root root-view
          (atom {:focus :wall})
          {:target (. js/document (getElementById "app"))})
