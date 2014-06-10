@@ -2,8 +2,7 @@
   (:require [cljs.core.async :refer [put! chan]]
             [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
-            [catchjob.util :as util :refer [div ul li icon]]
-            [catchjob.re :as re]))
+            [catchjob.util :as util :refer [div ul li icon]]))
 
 (def desk-init-state
   {:text ""
@@ -34,8 +33,8 @@
 (def input-parsers
   {:text identity
    :mode #(if (= 0 (count %)) :ready :edit)
-   :date re/find-date
-   :money re/find-money
+   :date util/find-date
+   :money util/find-money
    :rows count-rows})
 
 (defn handle-change [e owner state]

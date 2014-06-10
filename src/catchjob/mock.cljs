@@ -19,7 +19,7 @@
   {:id (gensym)
    :datetime (js/Date.)
    :class (rand-nth ["type-a" "type-b" "type-c" "type-d"])
-   :deadline nil
+   :deadline (js/Date (+ 86400000 (.getTime (js/Date.))))
    :budget (rand-nth (range 100 10000 10))
    :description (apply str (interpose " " (repeatedly
                                            (rand-nth [3 6 9 12 15 18])
