@@ -22,15 +22,15 @@
       (div "row"
         (div "site-title" "catch job!")
         (ul "nav nav-pills pull-right"
-          (when-not (empty? (:doer app))
-            (menu-item app :doer "my jobs"))
           (menu-item app :wall "catch!")
-          (menu-item app :desk "post a job"))))))
+          (menu-item app :desk "post a job")
+          (when-not (empty? (:doer app))
+            (menu-item app :doer "my jobs")))))))
 
 (defn apply-job [{:keys [focus apply-job]} entry-id]
   (fn [e]
     (put! apply-job entry-id)
-    (put! focus {:name :wall})))
+    (put! focus {:name :doer})))
 
 (defn entry-focus-view [entry owner]
   (reify
@@ -78,7 +78,7 @@
     om/IRenderState
     (render-state [_ {:keys [focus]}]
       (div "container"
-        (apply div "content"
+        (apply div "content wall"
                (om/build-all entry-item-view entries
                              {:state {:focus focus}}))))
 
@@ -93,6 +93,18 @@
                   next)))
           nil
           (:entries app)))
+
+(defn doer-model [app]
+  (mapv #(find-entry app %) (:doer app)))
+
+(defn doer-view [entries owner]
+  (om/component
+   (div "container"
+     (apply div "content doer"
+            (for [i entries]
+              (div "entry"
+                (->> i :datetime str (div "created text-muted"))
+                (->> i :description (div "description"))))))))
 
 (defn root-view [app owner]
   (reify
@@ -121,7 +133,7 @@
               (recur))
            apply-job
            ([v]
-              (om/transact! app [:doer :jobs] #(cons v %))
+              (om/transact! app [:doer] #(cons v %))
               (recur))))
         (mock/init-entries! add-entry)))
 
@@ -138,7 +150,8 @@
                            {:state (select-keys state [:focus :apply-job])})
           :desk (om/build desk/desk-view
                           (:desk app)
-                          {:state (select-keys state [:focus :add-entry])}))))))
+                          {:state (select-keys state [:focus :add-entry])})
+          :doer (om/build doer-view (doer-model app)))))))
 
 (om/root root-view
          (atom {:focus :wall})

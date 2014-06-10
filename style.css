@@ -55,7 +55,7 @@ ul.nav li {
     margin-top: 5px;
 }
 
-.entry:hover {
+.wall .entry:hover {
     border: 1px solid #eee;
     background-color: #fafafa;
     box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
@@ -68,7 +68,11 @@ ul.nav li {
 .type-d {background-color: #cbdfef;}
 
 .type-my {background-color: #a3445f; color: white;}
-.type-my:hover {background-color: #a3445f; color: white;}
+.wall .type-my:hover {background-color: #a3445f; color: white;}
+
+.doer .entry {
+    border: 1px solid #bbb;
+}    
 
 .desk textarea {
     resize: none;
@@ -106,3 +110,4 @@ ul.nav li {
 .reply h4 {
     line-height: 150%;
 }
+
