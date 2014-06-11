@@ -50,6 +50,7 @@ ul.nav li {
     padding: 10px;
 }
 
+.reply .description,
 .entry .description {
     white-space: pre-wrap;
     margin-top: 5px;
