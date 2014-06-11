@@ -5,9 +5,18 @@
                  [om "0.6.2"]]
   :plugins [[lein-cljsbuild "1.0.3"]]
   :source-paths ["src"]
-  :cljsbuild {:builds
-              {:dev {:source-paths ["src"]
-                     :compiler {:output-to "app.js"
-                                :output-dir "out"
-                                :optimizations :none
-                                :source-map true}}}})
+  :cljsbuild
+  {:builds
+   {:dev
+    {:source-paths ["src"]
+     :compiler {:output-to "app.js"
+                :output-dir "out"
+                :optimizations :none
+                :source-map true}}
+    :prod
+    {:source-paths ["src"]
+     :compiler {:externs  ["react/externs/react.js"]
+                :preamble ["react/react.min.js"]
+                :pretty-print false
+                :output-to "app.min.js"
+                :optimizations :advanced}}}})
